@@ -1,7 +1,8 @@
 <section class="pt-80">
   <div class="container">
     <div class="row g-4 align-items-end justify-content-between">
-      <?php
+      <?php 
+      // get pge ID
       $post = get_post(73290);
       if ($post) :
       ?>

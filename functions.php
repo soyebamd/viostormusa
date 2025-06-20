@@ -267,3 +267,103 @@ function hiw_cpt_shortcode($atts) {
 }
 
 add_shortcode('how_it_works_grid', 'hiw_cpt_shortcode');
+
+
+// OUR SERVICES
+function register_our_services_cpt() {
+    register_post_type('our_services', [
+        'labels' => [
+            'name' => 'Our Services',
+            'singular_name' => 'Service',
+        ],
+        'public' => true,
+        'has_archive' => false,
+        'rewrite' => ['slug' => 'our-services'],
+        'supports' => ['title', 'editor', 'thumbnail'],
+        'menu_icon' => 'dashicons-admin-tools',
+    ]);
+}
+add_action('init', 'register_our_services_cpt');
+
+function our_services_shortcode() {
+    ob_start();
+    ?>
+    <section class="p-0">
+      <div class="container relative z-1000 mt-min-100">
+        <div class="row g-0">
+          <?php
+          $args = [
+              'post_type' => 'our_services',
+              'posts_per_page' => 12,
+              'orderby' => 'menu_order',
+              'order' => 'ASC'
+          ];
+          $query = new WP_Query($args);
+          $delay = 0;
+
+          if ($query->have_posts()) :
+              while ($query->have_posts()) : $query->the_post();
+                  $delay += 0.3;
+                  ?>
+                  <div class="col-lg-3 col-sm-6">
+                    <div class="hover overflow-hidden relative text-light text-center wow fadeInRight" data-wow-delay="<?php echo esc_attr($delay); ?>s">
+                      <?php if (has_post_thumbnail()) : ?>
+                        <img src="<?php the_post_thumbnail_url('medium'); ?>" class="hover-scale-1-1 w-100 wow scaleIn" alt="<?php the_title_attribute(); ?>" />
+                      <?php endif; ?>
+
+                      <div class="abs w-100 px-4 hover-op-1 z-4 hover-mt-40 abs-centered">
+                        <div class="mb-3"><?php the_excerpt(); ?></div>
+                        <a class="btn-line" href="<?php the_permalink(); ?>">View Details</a>
+                      </div>
+
+                      <div class="abs bg-color z-2 top-0 w-100 h-100 hover-op-1"></div>
+                      <div class="abs abs-centered z-2 mt-3 w-100 text-center hover-op-0">
+                        <h4 class="mb-3"><?php the_title(); ?></h4>
+                      </div>
+                      <div class="gradient-trans-dark-bottom abs w-100 h-80 bottom-0"></div>
+                    </div>
+                  </div>
+              <?php
+              endwhile;
+              wp_reset_postdata();
+          endif;
+          ?>
+        </div>
+      </div>
+    </section>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('our_services_grid', 'our_services_shortcode');
+
+
+
+// LOGO SCROLLER
+
+function register_logo_scroller_cpt() {
+    $labels = array(
+        'name' => 'Logo Scroller',
+        'singular_name' => 'Logo Item',
+        'add_new' => 'Add New Logo Item',
+        'add_new_item' => 'Add New Logo Item',
+        'edit_item' => 'Edit Logo Item',
+        'new_item' => 'New Logo Item',
+        'view_item' => 'View Logo Item',
+        'search_items' => 'Search Logo Items',
+        'not_found' => 'No items found',
+        'menu_name' => 'Logo Scroller',
+    );
+
+    $args = array(
+        'label' => 'Logo Scroller',
+        'labels' => $labels,
+        'public' => true,
+        'menu_icon' => 'dashicons-slides',
+        'supports' => array('title', 'thumbnail'),
+        'has_archive' => false,
+        'show_in_rest' => true,
+    );
+
+    register_post_type('logo_scroller', $args);
+}
+add_action('init', 'register_logo_scroller_cpt');
