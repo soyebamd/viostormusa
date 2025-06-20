@@ -223,7 +223,6 @@ if (!empty($tagline)) {
 
         <?php get_template_part('template/section', 'how-it-works'); ?>
 
-
         <?php get_template_part('template/section', 'about-company'); ?>
 
         <?php get_template_part('template/section', 'our-services'); ?>
