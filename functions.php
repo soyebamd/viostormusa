@@ -75,6 +75,19 @@ function viostormusa_customize_topbar($wp_customize) {
         'type' => 'text',
     ));
 
+  
+    // Business Address
+$wp_customize->add_setting('topbar_address', array(
+    'default' => '100 S Main St, New York',
+    'sanitize_callback' => 'sanitize_text_field',
+));
+$wp_customize->add_control('topbar_address', array(
+    'label' => __('Business Address', 'viostormusa'),
+    'section' => 'topbar_section',
+    'type' => 'text',
+));
+
+
     // Email
     $wp_customize->add_setting('topbar_email', array(
         'default' => 'contact@wastewise.com',
