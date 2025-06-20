@@ -367,3 +367,57 @@ function register_logo_scroller_cpt() {
     register_post_type('logo_scroller', $args);
 }
 add_action('init', 'register_logo_scroller_cpt');
+
+
+//Footer 
+
+// Register C
+
+
+// Register Customizer Options
+function theme_customize_footer_settings($wp_customize) {
+    // Footer Logo
+    $wp_customize->add_section('footer_settings', array(
+        'title' => __('Footer Settings', 'viostormusa'),
+        'priority' => 130,
+    ));
+
+    $wp_customize->add_setting('footer_logo', [
+        'sanitize_callback' => 'absint',
+    ]);
+    $wp_customize->add_control(new WP_Customize_Cropped_Image_Control(
+        $wp_customize,
+        'footer_logo',
+        [
+            'label' => __('Footer Logo', 'viostormusa'),
+            'section' => 'footer_settings',
+            'settings' => 'footer_logo',
+            'width' => 300,
+            'height' => 100,
+            'flex_width' => true,
+            'flex_height' => true,
+        ]
+    ));
+
+    // Footer Description
+    $wp_customize->add_setting('footer_description', [
+        'sanitize_callback' => 'wp_kses_post',
+    ]);
+    $wp_customize->add_control('footer_description', [
+        'type' => 'textarea',
+        'label' => __('Footer Text', 'viostormusa'),
+        'section' => 'footer_settings',
+    ]);
+}
+add_action('customize_register', 'theme_customize_footer_settings');
+
+// Register Menus
+function register_footer_menus() {
+    register_nav_menus([
+        'footer_menu_1' => __('Footer Menu 1', 'viostormusa'),
+        'footer_menu_2' => __('Footer Menu 2', 'viostormusa'),
+    ]);
+}
+add_action('init', 'register_footer_menus');
+
+

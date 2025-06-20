@@ -51,16 +51,31 @@
               </a>
             </div>
           </div>
+          <?php
+$socials = [
+    'facebook'     => 'fa-facebook',
+    'x_twitter'    => 'fa-x-twitter',
+    'youtube'      => 'fa-youtube',
+    'pinterest'    => 'fa-pinterest',
+    'instagram'    => 'fa-instagram'
+];
+?>
 
-          <div class="d-flex">
-            <div class="social-icons">
-              <a href="<?php echo get_theme_mod('topbar_facebook'); ?>"><i class="fa-brands fa-facebook fa-lg"></i></a>
-              <a href="<?php echo get_theme_mod('topbar_x_twitter'); ?>"><i class="fa-brands fa-x-twitter fa-lg"></i></a>
-              <a href="<?php echo get_theme_mod('topbar_youtube'); ?>"><i class="fa-brands fa-youtube fa-lg"></i></a>
-              <a href="<?php echo get_theme_mod('topbar_pinterest'); ?>"><i class="fa-brands fa-pinterest fa-lg"></i></a>
-              <a href="<?php echo get_theme_mod('topbar_instagram'); ?>"><i class="fa-brands fa-instagram fa-lg"></i></a>
-            </div>
-          </div>
+<div class="d-flex">
+  <div class="social-icons">
+    <?php foreach ($socials as $key => $icon_class) :
+      $url = get_theme_mod("topbar_$key");
+      if (!empty($url)) : ?>
+        <a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener">
+          <i class="fa-brands <?php echo esc_attr($icon_class); ?> fa-lg"></i>
+        </a>
+      <?php endif;
+    endforeach; ?>
+  </div>
+</div>
+
+
+
         </div>
       </div>
     </div>
@@ -140,6 +155,8 @@
 
                    
                     <span id="menu-btn"></span>
+
+                    
                   </div>
 
                   <div id="btn-extra">
