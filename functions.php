@@ -284,7 +284,7 @@ add_shortcode('how_it_works_grid', 'hiw_cpt_shortcode');
 
 // OUR SERVICES
 function register_our_services_cpt() {
-    register_post_type('our_services', [
+    register_post_type('our-services', [
         'labels' => [
             'name' => 'Our Services',
             'singular_name' => 'Service',
@@ -306,7 +306,7 @@ function our_services_shortcode() {
         <div class="row g-0">
           <?php
           $args = [
-              'post_type' => 'our_services',
+              'post_type' => 'our-services',
               'posts_per_page' => 12,
               'orderby' => 'menu_order',
               'order' => 'ASC'
