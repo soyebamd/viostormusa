@@ -298,6 +298,58 @@ function register_our_services_cpt() {
 }
 add_action('init', 'register_our_services_cpt');
 
+// Add meta box to Our Services CPT
+function tag_line() {
+    add_meta_box(
+        'our_services_details',      // ID
+        'Tag Line',                  // Title
+        'render_tag_line',          // Callback
+        'our-services',             // Post type
+        'normal',                   // Context
+        'default'                   // Priority
+    );
+}
+add_action('add_meta_boxes', 'tag_line');
+
+// Render the Tag Line input field
+function render_tag_line($post) {
+    wp_nonce_field('save_our_services_meta', 'our_services_meta_nonce');
+
+    $tag_line = get_post_meta($post->ID, '_tag_line', true);
+    ?>
+    <p>
+        <label for="tag_line"><strong>Tag Line:</strong></label><br>
+        <input type="text" name="tag_line" id="tag_line" value="<?php echo esc_attr($tag_line); ?>" style="width:100%;" />
+    </p>
+    <?php
+}
+
+// Save the Tag Line field value
+function save_tag_line_meta($post_id) {
+    // Verify nonce
+    if (!isset($_POST['our_services_meta_nonce']) || !wp_verify_nonce($_POST['our_services_meta_nonce'], 'save_our_services_meta')) {
+        return;
+    }
+
+    // Check for autosave
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+
+    // Check user permissions
+    if (!current_user_can('edit_post', $post_id)) return;
+
+    // Save the meta
+    if (isset($_POST['tag_line'])) {
+        update_post_meta($post_id, '_tag_line', sanitize_text_field($_POST['tag_line']));
+    }
+}
+add_action('save_post', 'save_tag_line_meta');
+
+
+
+
+
+
+
 function our_services_shortcode() {
     ob_start();
     ?>
@@ -434,3 +486,177 @@ function register_footer_menus() {
 add_action('init', 'register_footer_menus');
 
 
+
+//BREACRUMB
+function custom_global_breadcrumb() {
+    echo '<ul class="crumb">';
+
+    // Home link
+    echo '<li><a href="' . home_url() . '">Home</a></li>';
+
+    if (is_category() || is_single()) {
+        $post_type = get_post_type();
+
+        // If it's a custom post type, show its archive link (if available)
+        if ($post_type !== 'post') {
+            $post_type_obj = get_post_type_object($post_type);
+            if ($post_type_obj && $post_type_obj->has_archive) {
+                echo '<li><a href="' . get_post_type_archive_link($post_type) . '">' . esc_html($post_type_obj->labels->name) . '</a></li>';
+            }
+        }
+
+        // Current post/page title
+        if (is_single()) {
+            echo '<li class="active">' . get_the_title() . '</li>';
+        }
+
+    } elseif (is_page()) {
+        $parents = get_post_ancestors(get_the_ID());
+        $parents = array_reverse($parents);
+        foreach ($parents as $parent) {
+            echo '<li><a href="' . get_permalink($parent) . '">' . get_the_title($parent) . '</a></li>';
+        }
+        echo '<li class="active">' . get_the_title() . '</li>';
+
+    } elseif (is_search()) {
+        echo '<li class="active">Search: ' . get_search_query() . '</li>';
+
+    } elseif (is_404()) {
+        echo '<li class="active">404 Not Found</li>';
+
+    } elseif (is_archive()) {
+        if (is_post_type_archive()) {
+            $post_type_obj = get_post_type_object(get_post_type());
+            echo '<li class="active">' . $post_type_obj->labels->name . '</li>';
+        } elseif (is_category()) {
+            echo '<li class="active">' . single_cat_title('', false) . '</li>';
+        } elseif (is_tag()) {
+            echo '<li class="active">' . single_tag_title('', false) . '</li>';
+        } elseif (is_author()) {
+            echo '<li class="active">Author: ' . get_the_author() . '</li>';
+        } elseif (is_date()) {
+            echo '<li class="active">Archives</li>';
+        }
+    }
+
+    echo '</ul>';
+}
+
+
+
+// Services feature box
+
+function add_service_features_box() {
+    add_meta_box(
+        'service_features_box',
+        'Service Features',
+        'render_service_features_box',
+        'our-services',
+        'normal',
+        'default'
+    );
+}
+add_action('add_meta_boxes', 'add_service_features_box');
+
+function render_service_features_box($post) {
+    wp_nonce_field('save_service_features', 'service_features_nonce');
+    $features = get_post_meta($post->ID, '_service_features', true);
+    ?>
+
+    <div id="features-wrapper">
+        <?php
+        if (!empty($features) && is_array($features)) {
+            foreach ($features as $index => $feature) {
+                ?>
+                <div class="feature-group" style="margin-bottom: 15px; border:1px solid #ccc; padding:10px;">
+                    <input type="text"
+                           name="features[<?php echo $index; ?>][title]"
+                           placeholder="Title"
+                           value="<?php echo esc_attr($feature['title']); ?>"
+                           style="width:45%; margin-right:10px;" />
+
+                    <textarea name="features[<?php echo $index; ?>][desc]"
+                              placeholder="Description"
+                              style="width:45%;"><?php echo esc_textarea($feature['desc']); ?></textarea>
+
+                    <button class="remove-feature button">Remove</button>
+                </div>
+                <?php
+            }
+        }
+        ?>
+    </div>
+
+    <button type="button" class="button" id="add-feature">Add Feature</button>
+
+    <!-- hidden HTML template for new rows -->
+    <div id="feature-template" style="display:none;">
+        <div class="feature-group" style="margin-bottom:15px; border:1px solid #ccc; padding:10px;">
+            <input type="text"
+                   name="features[__index__][title]"
+                   placeholder="Title"
+                   style="width:45%; margin-right:10px;" />
+
+            <textarea name="features[__index__][desc]"
+                      placeholder="Description"
+                      style="width:45%;"></textarea>
+
+            <button class="remove-feature button">Remove</button>
+        </div>
+    </div>
+
+    <script>
+    (function(){
+        const wrapper = document.getElementById('features-wrapper');
+        const addBtn  = document.getElementById('add-feature');
+        const templateHTML = document.getElementById('feature-template').innerHTML;
+
+        // start index at one past the highest existing index
+        let featureIndex = Array.from(wrapper.querySelectorAll('.feature-group'))
+            .map(el => {
+                // read the name="features[<n>][title]"
+                const input = el.querySelector('input[name^="features["]');
+                const match = input.name.match(/features\[(\d+)\]/);
+                return match ? parseInt(match[1], 10) : -1;
+            })
+            .reduce((max, n) => n > max ? n : max, -1) + 1;
+
+        addBtn.addEventListener('click', function(){
+            // replace __index__ in template
+            const newRow = templateHTML.replace(/__index__/g, featureIndex);
+            wrapper.insertAdjacentHTML('beforeend', newRow);
+            featureIndex++;
+        });
+
+        wrapper.addEventListener('click', function(e){
+            if (e.target.classList.contains('remove-feature')) {
+                e.preventDefault();
+                e.target.closest('.feature-group').remove();
+            }
+        });
+    })();
+    </script>
+
+    <?php
+}
+
+
+function save_service_features($post_id) {
+    if (!isset($_POST['service_features_nonce']) || !wp_verify_nonce($_POST['service_features_nonce'], 'save_service_features')) return;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_post', $post_id)) return;
+
+    if (!empty($_POST['features']) && is_array($_POST['features'])) {
+        $cleaned = [];
+        foreach ($_POST['features'] as $feature) {
+            $cleaned[] = [
+                'title' => sanitize_text_field($feature['title']),
+                'desc' => sanitize_textarea_field($feature['desc']),
+            ];
+        }
+        update_post_meta($post_id, '_service_features', $cleaned);
+    } else {
+        delete_post_meta($post_id, '_service_features');
+    }
+}
+add_action('save_post', 'save_service_features');
