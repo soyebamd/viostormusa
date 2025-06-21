@@ -45,7 +45,7 @@
                                 
                                 <?php
                                 // TAGLINE META
-$tag_line = get_post_meta(get_the_ID(), '_tag_line', true);
+$tag_line = get_post_meta(get_the_ID(), '_tagline', true);
 if ($tag_line) {
     echo  esc_html($tag_line) ;
 }

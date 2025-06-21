@@ -555,8 +555,29 @@ function add_service_features_box() {
         'normal',
         'default'
     );
+
+    // Also add to "About Us" page only (ID or slug-based check)
+    global $post;
+
+ 
+        // Option A: Check by page slug
+        if ($post && $post->post_type === 'page' && $post->post_name === 'about-us') {
+            add_meta_box(  
+                'service_features_box',
+                'Service Features',
+                'render_service_features_box',
+                'page',
+                'normal',
+                'default'
+            );
+     
+
+        // Option B: Check by specific page ID
+        // if ($post->ID == 73339) { ... same add_meta_box code ... }
+    }
 }
 add_action('add_meta_boxes', 'add_service_features_box');
+
 
 function render_service_features_box($post) {
     wp_nonce_field('save_service_features', 'service_features_nonce');
@@ -660,3 +681,4 @@ function save_service_features($post_id) {
     }
 }
 add_action('save_post', 'save_service_features');
+
